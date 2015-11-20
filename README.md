@@ -1,0 +1,1 @@
+Sample how to make section headers for RecyclerView like in Google Contacts application on Android 5+.
