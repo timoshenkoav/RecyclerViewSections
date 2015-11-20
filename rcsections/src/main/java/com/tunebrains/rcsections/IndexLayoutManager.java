@@ -1,8 +1,9 @@
-package com.tunebrains.rcfastscroll;
+package com.tunebrains.rcsections;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,7 +21,7 @@ public class IndexLayoutManager extends FrameLayout {
 
     private TextView stickyIndex;
     private RecyclerView indexList;
-
+    private RecyclerView.OnScrollListener mScrollListener;
     public IndexLayoutManager(Context context) {
         super(context);
     }
@@ -42,12 +43,19 @@ public class IndexLayoutManager extends FrameLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
         LayoutInflater.from(getContext()).inflate(R.layout.internal_index_layout, this, true);
+        mScrollListener = getListener();
         init();
     }
 
     public void attach(RecyclerView pRecyclerView) {
         indexList = pRecyclerView;
-        pRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        pRecyclerView.addOnScrollListener(mScrollListener);
+        update(pRecyclerView, 0, 0);
+    }
+
+    @NonNull
+    private RecyclerView.OnScrollListener getListener() {
+        return new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
@@ -58,17 +66,17 @@ public class IndexLayoutManager extends FrameLayout {
                 super.onScrolled(recyclerView, dx, dy);
                 update(recyclerView, dx, dy);
             }
-        });
-        update(pRecyclerView, 0, 0);
+        };
     }
 
     public void dettach(RecyclerView pRecyclerView) {
-        pRecyclerView.setOnScrollListener(null);
+        pRecyclerView.removeOnScrollListener(mScrollListener);
     }
 
     public void refresh() {
         update(indexList, 0, 0);
     }
+
     private void init() {
         stickyIndex = (TextView) findViewById(R.id.section_title);
     }
@@ -94,8 +102,6 @@ public class IndexLayoutManager extends FrameLayout {
         int actual = referenceRv.getChildPosition(firstVisibleView);
         ((LinearLayoutManager) indexList.getLayoutManager()).scrollToPositionWithOffset(actual, firstVisibleView.getTop() + 0);
     }
-
-    // SUBSCRIBER INTERFACE ________________________________________________________________________
 
     public void update(RecyclerView referenceList, float dx, float dy) {
         if (indexList != null && indexList.getChildCount() > 2) {
@@ -125,7 +131,7 @@ public class IndexLayoutManager extends FrameLayout {
                     if (isHeader(firstRowIndex, secondRowIndex)) {
                         stickyIndex.setVisibility(TextView.INVISIBLE);
                         firstRowIndex.setVisibility(TextView.VISIBLE);
-                        ViewCompat.setAlpha(firstRowIndex, (1 - (Math.abs(firstVisibleView.getY()) / firstRowIndex.getHeight())));
+                        ViewCompat.setAlpha(firstRowIndex, (1 - (Math.abs(ViewCompat.getY(firstVisibleView)) / firstRowIndex.getHeight())));
                         secondRowIndex.setVisibility(TextView.VISIBLE);
                     } else {
                         firstRowIndex.setVisibility(TextView.INVISIBLE);
@@ -140,7 +146,7 @@ public class IndexLayoutManager extends FrameLayout {
                     if ((isHeader(firstRowIndex, secondRowIndex) || (getIndexContext(firstRowIndex) != getIndexContext(secondRowIndex))) && isHeader(firstRowIndex, secondRowIndex)) {
                         stickyIndex.setVisibility(TextView.INVISIBLE);
                         firstRowIndex.setVisibility(TextView.VISIBLE);
-                        ViewCompat.setAlpha(firstRowIndex, 1 - (Math.abs(firstVisibleView.getY()) / firstRowIndex.getHeight()));
+                        ViewCompat.setAlpha(firstRowIndex, 1 - (Math.abs(ViewCompat.getY(firstVisibleView) / firstRowIndex.getHeight())));
                         secondRowIndex.setVisibility(TextView.VISIBLE);
                     } else {
                         secondRowIndex.setVisibility(TextView.INVISIBLE);
@@ -156,18 +162,9 @@ public class IndexLayoutManager extends FrameLayout {
         }
     }
 
-    // GETTERS AND SETTERS _________________________________________________________________________
-    public void setIndexList(RecyclerView indexList) {
-        this.indexList = indexList;
-    }
 
-    /**/
     private char getIndexContext(TextView index) {
         return index.getText().charAt(0);
-    }
-
-    public TextView getStickyIndex() {
-        return stickyIndex;
     }
 
     public void show() {

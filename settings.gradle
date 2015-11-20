@@ -1,1 +1,1 @@
-include ':app', ':rcfastscroll'
+include ':app', ':rcsections'

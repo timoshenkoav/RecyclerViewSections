@@ -15,7 +15,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"/>
 
-    <com.tunebrains.rcfastscroll.IndexLayoutManager
+    <com.tunebrains.rcsections.IndexLayoutManager
         android:id="@+id/index_layout"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"/>
