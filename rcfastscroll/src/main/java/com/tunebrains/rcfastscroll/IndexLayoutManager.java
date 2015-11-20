@@ -45,6 +45,30 @@ public class IndexLayoutManager extends FrameLayout {
         init();
     }
 
+    public void attach(RecyclerView pRecyclerView) {
+        indexList = pRecyclerView;
+        pRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                update(recyclerView, dx, dy);
+            }
+        });
+        update(pRecyclerView, 0, 0);
+    }
+
+    public void dettach(RecyclerView pRecyclerView) {
+        pRecyclerView.setOnScrollListener(null);
+    }
+
+    public void refresh() {
+        update(indexList, 0, 0);
+    }
     private void init() {
         stickyIndex = (TextView) findViewById(R.id.section_title);
     }
@@ -82,8 +106,8 @@ public class IndexLayoutManager extends FrameLayout {
             View secondVisibleView = indexList.getChildAt(1);
 
 
-            TextView firstRowIndex = null;//(TextView) firstVisibleView.findViewById(R.id.section_title);
-            TextView secondRowIndex = null;//(TextView) secondVisibleView.findViewById(R.id.section_title);
+            TextView firstRowIndex = (TextView) firstVisibleView.findViewById(R.id.section_title);
+            TextView secondRowIndex = (TextView) secondVisibleView.findViewById(R.id.section_title);
 
             int visibleRange = indexList.getChildCount();
             int actual = indexList.getChildPosition(firstVisibleView);
